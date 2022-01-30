@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Str;
 
+
+$redisUrl = parse_url(env('REDIS_URL'));
+
 return [
 
     /*
@@ -116,8 +119,6 @@ return [
     | such as APC or Memcached. Laravel makes it easy to dig right in.
     |
     */
-    
-    $redisUrl = parse_url(env('REDIS_URL'));
 
     'redis' => [
 
