@@ -1,1 +1,1 @@
-web: ./vendor/bin/sail up
+web: vendor/bin/heroku-php-apache2 public/
