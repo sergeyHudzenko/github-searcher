@@ -5,6 +5,8 @@ use Illuminate\Support\Str;
 
 $redisUrl = parse_url(env('REDIS_URL'));
 
+dd($redisUrl);
+
 return [
 
     /*
