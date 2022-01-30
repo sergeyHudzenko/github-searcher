@@ -116,6 +116,8 @@ return [
     | such as APC or Memcached. Laravel makes it easy to dig right in.
     |
     */
+    
+    $redisUrl = parse_url(env('REDIS_URL'));
 
     'redis' => [
 
@@ -128,17 +130,17 @@ return [
 
         'default' => [
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'password' => env('REDIS_PASSWORD', null),
-            'port' => env('REDIS_PORT', '6379'),
+            'host' => $redisUrl['host'],
+            'password' => $redisUrl['pass'],
+            'port' => $redisUrl['port'],
             'database' => env('REDIS_DB', '0'),
         ],
 
         'cache' => [
             'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'password' => env('REDIS_PASSWORD', null),
-            'port' => env('REDIS_PORT', '6379'),
+            'host' => $redisUrl['host'],
+            'password' => $redisUrl['pass'],
+            'port' => $redisUrl['port'],
             'database' => env('REDIS_CACHE_DB', '1'),
         ],
 
