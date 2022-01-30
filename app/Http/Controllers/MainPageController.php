@@ -18,9 +18,9 @@ class MainPageController extends Controller
         
     ];
     private $config = [
-        'ALL_USERS_PER_PAGE_COUNT' => 30,
-        'SEARCHED_USERS_PER_PAGE_COUNT' => 30,
-        'USER_REPOS_PER_PAGE_COUNT' => 30
+        'ALL_USERS_PER_PAGE_COUNT' => 10,
+        'SEARCHED_USERS_PER_PAGE_COUNT' => 10,
+        'USER_REPOS_PER_PAGE_COUNT' => 10
     ];
 
     public function __construct()
