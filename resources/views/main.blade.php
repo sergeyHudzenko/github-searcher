@@ -22,8 +22,8 @@
                 @endforeach 
             @endif
 
-            @if(isset($searchRow) && isset($page))
-                <a href="{{route('users.search.paginate', [$searchRow, $page])}}">Next page</a>
+            @if(isset($searchRow) && count($users) > 9)
+                <a href="{{route('users.search.paginate', [$searchRow, $page ?? 2])}}">Next page</a>
             @endif
         </div>
 @endsection
