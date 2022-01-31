@@ -26,7 +26,6 @@ class MainPageController extends Controller
     public function __construct()
     {
         $this->redis = Redis::connection(); 
-        dd($this->redis);
     }
 
     /**
