@@ -160,7 +160,7 @@ class MainPageController extends Controller
  
 
         if (isset($searchRow) && $searchRow !== '') {
-            dd($page,  $searchRow);
+            dd($this->redis->hExists('search_users', $searchRow));
             // If Reddis keys exist hash of serched users -> return  users from cache
             if (is_null($page) && $this->redis->hExists('search_users', $searchRow)) {
                 $rUsers = json_decode($this->redis->hGet('search_users', $searchRow)); 
