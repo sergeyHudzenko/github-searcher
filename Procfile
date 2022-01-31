@@ -1,1 +1,1 @@
-web: pickle install redis | vendor/bin/heroku-php-apache2 public/
+web: git clone https://github.com/phpredis/phpredis.git | cd phpredis | phpize | ./configure [--enable-redis-igbinary] [--enable-redis-msgpack] [--enable-redis-lzf [--with-liblzf[=DIR]]] [--enable-redis-zstd] | make && make install | vendor/bin/heroku-php-apache2 public/
