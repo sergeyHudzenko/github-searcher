@@ -6,10 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class MainPageController extends Controller
-{   
-    private $repos = null;
-    private $user = null;
-
+{    
     private $urls = [
         'SEARCH_USER' => 'https://api.github.com/search/users',
         'TOTAL_REPOS' => 'https://api.github.com/users/%s',
@@ -53,8 +50,6 @@ class MainPageController extends Controller
             'Accept' => 'application/vnd.github.v3.star+json'
         ])->get(sprintf($this->urls['USER_REPOS'], $login), ['per_page' => $this->config['USER_REPOS_PER_PAGE_COUNT']]);
         if ($repos->successful()){
-            $this->repos = $this->convertArrayToObject($repos->json());
-            dd($this->repos);
             return $this->convertArrayToObject($repos->json());
         }
 
@@ -97,7 +92,6 @@ class MainPageController extends Controller
         // Make request to github for getting a special user
         $users = Http::get(sprintf($this->urls['GET_USER'], $login));
         if ($users->successful()) { 
-            $this->user = $this->convertArrayToObject($users->json());
             // Getting repos for current user
             $repos = $this->getUsersRepos($login); 
             return view('single', ['user' => $this->convertArrayToObject($users->json()), 'repos' => $repos]);
@@ -119,14 +113,15 @@ class MainPageController extends Controller
         $login = $request->login;
 
         if (isset($searchRow) && $searchRow !== '') {
-            dd($this->repos);
-            if (isset($this->user) && isset($this->repos)) {
+            $users = Http::get(sprintf($this->urls['GET_USER'], $login));
+            if ($users->successful()) { 
+                $repos = $this->getUsersRepos($login); 
                 // Filter repos array by search string or substring
-                $foundRepos = collect($this->repos)->filter(function($item) use ($searchRow) {
+                $foundRepos = collect($repos)->filter(function($item) use ($searchRow) {
                     return stripos($item->name, $searchRow) !== false;
                 });
     
-                return view('single', ['user' => $this->user, 'repos' => $foundRepos, 'searchRow' => $searchRow  ]);
+                return view('single', ['user' => $this->convertArrayToObject($users->json()), 'repos' => $foundRepos, 'searchRow' => $searchRow  ]);
             }
         }
 
