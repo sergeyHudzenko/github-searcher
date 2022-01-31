@@ -98,7 +98,7 @@ class MainPageController extends Controller
      */
     public function show($login)
     {
-        $this->redis->hSet('user',['t' => 't']);
+        $this->redis->hSet('user', 'set');
         dd($this->redis->command('hexists', ['user', $login]));
         // If Reddis keys exist hash of serched users -> return  users and repos from cache
         if ($this->redis->hExists('user', $login) && $this->redis->hExists('repos', $login)) {
