@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Redis;
 
 class MainPageController extends Controller
-{
-    private $redis;
+{   
+    private $repos = null;
+    private $user = null;
+
     private $urls = [
         'SEARCH_USER' => 'https://api.github.com/search/users',
         'TOTAL_REPOS' => 'https://api.github.com/users/%s',
@@ -20,13 +21,8 @@ class MainPageController extends Controller
     private $config = [
         'ALL_USERS_PER_PAGE_COUNT' => 10,
         'SEARCHED_USERS_PER_PAGE_COUNT' => 10,
-        'USER_REPOS_PER_PAGE_COUNT' => 10
+        'USER_REPOS_PER_PAGE_COUNT' => 1php0
     ];
-
-    public function __construct()
-    {
-        $this->redis = Redis::connection(); 
-    }
 
     /**
      * Add total_repos properties to $users array
@@ -57,8 +53,7 @@ class MainPageController extends Controller
             'Accept' => 'application/vnd.github.v3.star+json'
         ])->get(sprintf($this->urls['USER_REPOS'], $login), ['per_page' => $this->config['USER_REPOS_PER_PAGE_COUNT']]);
         if ($repos->successful()){
-            // If successfull -> bind responce to login user and set to redis
-            $this->redis->hSet('repos', $login, json_encode($repos->json()));
+            $this->repos = $this->convertArrayToObject($repos->json());
             return $this->convertArrayToObject($repos->json());
         }
 
@@ -98,18 +93,10 @@ class MainPageController extends Controller
      */
     public function show($login)
     {
-        // If Reddis keys exist hash of serched users -> return  users and repos from cache
-        if ($this->redis->hExists('user', $login) && $this->redis->hExists('repos', $login)) {
-            $rUser = json_decode($this->redis->hGet('user', $login));
-            $rRepos = json_decode($this->redis->hGet('repos', $login));
-
-            return view('single', ['user' => $rUser, 'repos' => $rRepos ]);
-        }
         // Make request to github for getting a special user
         $users = Http::get(sprintf($this->urls['GET_USER'], $login));
         if ($users->successful()) { 
-            // If successful -> bind user data to login and set into redis cache
-            $this->redis->hSet('user', $login, json_encode($users->json()));
+            $this->user = $this->convertArrayToObject($users->json());
             // Getting repos for current user
             $repos = $this->getUsersRepos($login); 
             return view('single', ['user' => $this->convertArrayToObject($users->json()), 'repos' => $repos]);
@@ -131,16 +118,13 @@ class MainPageController extends Controller
         $login = $request->login;
 
         if (isset($searchRow) && $searchRow !== '') {
-            if ($this->redis->hExists('user', $login) && $this->redis->hExists('repos', $login)) {
-                $rUser = json_decode($this->redis->hGet('user', $login));
-                $rRepos = json_decode($this->redis->hGet('repos', $login));
-
+            if ($this->user && $this->repos) {
                 // Filter repos array by search string or substring
-                $foundRepos = collect($rRepos)->filter(function($item) use ($searchRow) {
+                $foundRepos = collect($this->repos)->filter(function($item) use ($searchRow) {
                     return stripos($item->name, $searchRow) !== false;
                 });
     
-                return view('single', ['user' => $rUser, 'repos' => $foundRepos, 'searchRow' => $searchRow  ]);
+                return view('single', ['user' => $this->user, 'repos' => $foundRepos, 'searchRow' => $searchRow  ]);
             }
         }
 
@@ -160,12 +144,7 @@ class MainPageController extends Controller
  
 
         if (isset($searchRow) && $searchRow !== '') {
-
-            // If Reddis keys exist hash of serched users -> return  users from cache
-            if (is_null($page) && $this->redis->hExists('search_users', $searchRow)) {
-                $rUsers = json_decode($this->redis->hGet('search_users', $searchRow)); 
-                return view('main', ['users' => collect($rUsers)->sortBy('total_repos')->reverse()->toArray(), 'searchRow' => $searchRow ]);
-            }
+ 
            
             // Make request to github for searching users
             $users = Http::get($this->urls['SEARCH_USER'], ['q' => $searchRow, 'per_page' => $this->config['SEARCHED_USERS_PER_PAGE_COUNT'], 'page' => $page ?? 1]);
@@ -177,11 +156,7 @@ class MainPageController extends Controller
                 $items = $parsedUsers['items'];
                 // Add total_repos param to $users
                 $this->addTotalRepos($items);
-                
-                if(is_null($page)) {
-                    // set users to Reddis where keys = searchRow, values = users
-                    $this->redis->hSet('search_users', $searchRow, json_encode($items));
-                } 
+                 
                 return view('main', ['users' => collect($this->convertArrayToObject($items))->sortBy('total_repos')->reverse()->toArray(), 'searchRow' => $searchRow, 'page' => $page ? ((int) $page + 1) : 2 ]);
             } else {
                 $users->throw();
