@@ -54,6 +54,7 @@ class MainPageController extends Controller
         ])->get(sprintf($this->urls['USER_REPOS'], $login), ['per_page' => $this->config['USER_REPOS_PER_PAGE_COUNT']]);
         if ($repos->successful()){
             $this->repos = $this->convertArrayToObject($repos->json());
+            dd($this->repos);
             return $this->convertArrayToObject($repos->json());
         }
 
