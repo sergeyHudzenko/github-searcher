@@ -115,8 +115,7 @@ class MainPageController extends Controller
         if (isset($searchRow) && $searchRow !== '') {
             $users = Http::get(sprintf($this->urls['GET_USER'], $login));
             if ($users->successful()) { 
-                $repos = $this->getUsersRepos($login); 
-                dd($users->json(), $repos);
+                $repos = $this->getUsersRepos($login);  
                 // Filter repos array by search string or substring
                 $foundRepos = collect($repos)->filter(function($item) use ($searchRow) {
                     return stripos($item->name, $searchRow) !== false;
