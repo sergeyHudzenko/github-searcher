@@ -99,7 +99,7 @@ class MainPageController extends Controller
     public function show($login)
     {
         // If Reddis keys exist hash of serched users -> return  users and repos from cache
-        if ($this->redis->hExists('user', $login) && $this->redis->hExists('repos', $login)) {
+        if ($this->redis->hexists('user', $login) && $this->redis->hexists('repos', $login)) {
             $rUser = json_decode($this->redis->hGet('user', $login));
             $rRepos = json_decode($this->redis->hGet('repos', $login));
 
