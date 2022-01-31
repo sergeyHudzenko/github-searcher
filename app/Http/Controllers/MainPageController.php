@@ -98,7 +98,7 @@ class MainPageController extends Controller
      */
     public function show($login)
     {
-        dd($this->redis->command('HEXISTS'));
+        dd($this->redis->command('hexists', $login));
         // If Reddis keys exist hash of serched users -> return  users and repos from cache
         if ($this->redis->hExists('user', $login) && $this->redis->hExists('repos', $login)) {
             $rUser = json_decode($this->redis->hGet('user', $login));
@@ -161,7 +161,7 @@ class MainPageController extends Controller
  
 
         if (isset($searchRow) && $searchRow !== '') {
-            dd($this->redis);
+
             // If Reddis keys exist hash of serched users -> return  users from cache
             if (is_null($page) && $this->redis->hExists('search_users', $searchRow)) {
                 $rUsers = json_decode($this->redis->hGet('search_users', $searchRow)); 
