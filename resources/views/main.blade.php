@@ -22,7 +22,7 @@
                 @endforeach 
             @endif
 
-            @if(isset($searchRow))
+            @if(isset($searchRow) && isset($page))
                 <a href="{{route('users.search.paginate', [$searchRow, $page])}}">Next page</a>
             @endif
         </div>
