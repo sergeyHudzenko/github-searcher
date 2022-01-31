@@ -11,7 +11,8 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "predis/predis": "^1.1.10"
+        "predis/predis": "^1.1.10",
+        "ext-redis": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
