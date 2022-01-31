@@ -118,7 +118,8 @@ class MainPageController extends Controller
         $login = $request->login;
 
         if (isset($searchRow) && $searchRow !== '') {
-            if ($this->user && $this->repos) {
+            dd($this->repos);
+            if (isset($this->user) && isset($this->repos)) {
                 // Filter repos array by search string or substring
                 $foundRepos = collect($this->repos)->filter(function($item) use ($searchRow) {
                     return stripos($item->name, $searchRow) !== false;
